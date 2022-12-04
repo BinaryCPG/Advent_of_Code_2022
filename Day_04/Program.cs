@@ -14,7 +14,6 @@ namespace Day_04
             string[] input = File.ReadAllLines("input.txt");
 
             int count = 0, count_all = 0;
-
             string[] _pairs, _r1, _r2;
             int r1a, r1b, r2a, r2b;
 
@@ -31,6 +30,7 @@ namespace Day_04
                 if (((r1a <= r2a) && (r2a <= r1b)) || ((r1a <= r2b) && (r2b <= r1b)) || ((r2a <= r1a) && (r1a <= r2b)) || ((r2a <= r1b) && (r1b <= r2b)))
                 {
                     count_all++;
+
                     if(((r1a >= r2a) && (r1b <= r2b)) || ((r1a <= r2a) && (r1b >= r2b)))
                     {
                         count++;
