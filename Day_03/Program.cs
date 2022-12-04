@@ -63,7 +63,9 @@ namespace Day_03
                     }
                 }
             }
-            Console.WriteLine($"Sum(2): {sum}");
+            Console.WriteLine($"Sum(2)" +
+                $"" +
+              : {sum}");
             Console.ReadLine();
         }
 
