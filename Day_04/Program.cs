@@ -28,20 +28,18 @@ namespace Day_04
                 r2a = int.Parse(_r2[0]);
                 r2b = int.Parse(_r2[1]);
 
-                if (((r1a >= r2a) && (r1b <= r2b)) || ((r1a <= r2a) && (r1b >= r2b)))
-                {
-                    count++;
-                    count_all++;
-                }
-                else if ( ((r1a <= r2a) && (r2a <= r1b)) || ((r1a <= r2b) && (r2b <= r1b)) || ((r2a <= r1a) && (r1a <= r2b)) || ((r2a <= r1b) && (r1b <= r2b)))
+                if (((r1a <= r2a) && (r2a <= r1b)) || ((r1a <= r2b) && (r2b <= r1b)) || ((r2a <= r1a) && (r1a <= r2b)) || ((r2a <= r1b) && (r1b <= r2b)))
                 {
                     count_all++;
+                    if(((r1a >= r2a) && (r1b <= r2b)) || ((r1a <= r2a) && (r1b >= r2b)))
+                    {
+                        count++;
+                    }
                 }
             }
 
             Console.WriteLine($"Count (1): {count}");
             Console.WriteLine($"Count (2): {count_all}");
-
             Console.ReadLine();
         }
     }
