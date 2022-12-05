@@ -35,14 +35,17 @@ namespace Day_05
             }
             move_start += 2;
 
-            List<Stack<char>> stacks = new List<Stack<char>>();
-            foreach(List<char> l  in stacks_tmp)
+            List<Stack<char>> stacks_9000 = new List<Stack<char>>();
+            List<Stack<char>> stacks_9001 = new List<Stack<char>>();
+            foreach (List<char> l  in stacks_tmp)
             {
                 l.Reverse();
-                stacks.Add(new Stack<char>(l));
+                stacks_9000.Add(new Stack<char>(l));
+                stacks_9001.Add(new Stack<char>(l));
             }
 
             int amount, origin, target;
+            List<char> moving = new List<char>();
             for (int i = move_start; i < input.Length; i++)
             {
                 string[] move = input[i].Split(new char[] { ' ' });
@@ -52,20 +55,40 @@ namespace Day_05
 
                 for(int a = 0; a < amount; a++)
                 {
-                    if(stacks[origin].Count > 0)
+                    if(stacks_9000[origin].Count > 0)
                     {
-                        stacks[target].Push(stacks[origin].Pop());
+                        stacks_9000[target].Push(stacks_9000[origin].Pop());
+                    }
+                }
+
+                if(stacks_9001[origin].Count >= amount)
+                {
+                    moving.Clear();
+                    for(int a = 0; a < amount; a++)
+                    {
+                        moving.Add(stacks_9001[origin].Pop());
+                    }
+                    moving.Reverse();
+                    for (int a = 0; a < amount; a++)
+                    {
+                        stacks_9001[target].Push(moving[a]);
                     }
                 }
             }
 
             StringBuilder sb = new StringBuilder();
-            foreach(Stack<char> sc in stacks)
+            foreach(Stack<char> sc in stacks_9000)
             {
                 sb.Append(sc.Peek());
             }
-            Console.WriteLine($"Top crates: {sb}");
-            
+            Console.WriteLine($"Top crates (1): {sb}");
+            sb.Clear();
+            foreach (Stack<char> sc in stacks_9001)
+            {
+                sb.Append(sc.Peek());
+            }
+            Console.WriteLine($"Top crates (2): {sb}");
+
             Console.ReadLine();
         }
     }
