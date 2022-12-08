@@ -89,6 +89,97 @@ namespace Day_08
             }
             Console.WriteLine($"Trees visible: {sum}");
 
+            int[,] treeScore = new int[input.Length, input[0].Length];
+            int scoreLeft, scoreRight, scoreUp, scoreDown;
+            for (int i = 0; i < input.Length; i++)
+            {
+                for (int j = 0; j < input[0].Length; j++)
+                {
+                    //Reset
+                    scoreLeft = 0;
+                    scoreRight = 0; 
+                    scoreUp = 0; 
+                    scoreDown = 0;
+
+                    //Row
+                    if (i == 0)
+                    {
+                        scoreLeft = 0;
+                    }
+                    else
+                    {
+                        for (int _i = i - 1; _i >= 0; _i = _i - 1)
+                        {
+                            scoreLeft++;
+                            if (forest[_i, j] >= forest[i, j])
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+                    if(i == input.Length - 1)
+                    {
+                        scoreRight = 0;
+                    }
+                    else
+                    {
+                        for (int _i = i + 1; _i < input.Length; _i++)
+                        {
+                            scoreRight++;
+                            if (forest[_i, j] >= forest[i, j])
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+                    //Column
+                    if(j == 0)
+                    {
+                        scoreUp = 0;
+                    }
+                    else
+                    {
+                        for (int _j = j - 1; _j >= 0; _j = _j - 1)
+                        {
+                            scoreUp++;
+                            if (forest[i, _j] >= forest[i, j])
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    if(j == input[0].Length - 1)
+                    {
+                        scoreDown = 0;
+                    }
+                    else
+                    {
+                        for (int _j = j + 1; _j < input[0].Length; _j++)
+                        {
+                            scoreDown++;
+                            if (forest[i, _j] >= forest[i, j])
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+                    treeScore[i, j] = scoreLeft * scoreRight * scoreUp * scoreDown;
+                }
+            }
+
+            int maxScore = 0;
+            for (int i = 0; i < input.Length; i++)
+            {
+                for (int j = 0; j < input[0].Length; j++)
+                {
+                    maxScore = treeScore[i, j] > maxScore ? treeScore[i, j] : maxScore;
+                }
+            }
+            Console.WriteLine($"Max score: {maxScore}");
+
             Console.ReadLine();
         }
     }
