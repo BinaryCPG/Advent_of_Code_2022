@@ -4,15 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Numerics;
 
 namespace Day_11
 {
     class Program
     {
+        public static bool PART1 = true;
+        //https://www.reddit.com/r/adventofcode/comments/zizi43/comment/iztt8mx/?utm_source=share&utm_medium=web2x&context=3
+        public static BigInteger cycleLength = 1;
+
         static void Main(string[] args)
         {
             string[] input = File.ReadAllLines("input.txt");
-
+            
             List<Monkey> monkeys = new List<Monkey>();
             for(int i = 0; i < input.Length; i += 7)
             {
@@ -26,32 +31,47 @@ namespace Day_11
                         input[i + 5]
                     }
                     ));
+
+                //https://www.reddit.com/r/adventofcode/comments/zizi43/comment/iztt8mx/?utm_source=share&utm_medium=web2x&context=3
+                cycleLength *= monkeys.Last().Test.TestDivisor;
             }
 
-            for(int round = 1; round <= 20; round++)
+            PART1 = false;
+
+            for(int round = 1; round <= (PART1 ? 20 : 10000); round++)
             {
                 foreach(Monkey m in monkeys)
                 {
-                    foreach (Tuple<int, Int64> item in m.InspectAllItems())
+                    
+                    foreach (Tuple<int, BigInteger> item in m.InspectAllItems())
                     {
                         monkeys[item.Item1].Items.Enqueue(item.Item2);
                     }
                 }
 
-                Console.WriteLine($"Round {round} result:");
-                for(int i = 0; i < monkeys.Count; i++)
+                if (PART1)
                 {
-                    Console.Write($"Monkey {i}: ");
-                    foreach(var item in monkeys[i].Items.ToList())
+                    Console.WriteLine($"Round {round} result:");
+                    for (int i = 0; i < monkeys.Count; i++)
                     {
-                        Console.Write($"{item}, ");
+                        Console.Write($"Monkey {i}: ");
+                        foreach (var item in monkeys[i].Items.ToList())
+                        {
+                            Console.Write($"{item}, ");
+                        }
+                        Console.WriteLine();
                     }
                     Console.WriteLine();
                 }
-                Console.WriteLine();
+                else
+                {
+                    Console.Write($"\rRound {round}/10000     ");
+                }
             }
 
-            List<Monkey> monkeys_sorted = monkeys.OrderByDescending(x => x.ItemsInspected).ToList();
+            Console.WriteLine();
+
+            List <Monkey> monkeys_sorted = monkeys.OrderByDescending(x => x.ItemsInspected).ToList();
 
             Console.WriteLine($"Monkey business: {(monkeys_sorted[0].ItemsInspected * monkeys_sorted[1].ItemsInspected)}");
 
@@ -61,23 +81,23 @@ namespace Day_11
 
     class Monkey
     {
-        public Queue<Int64> Items;
-        MonkeyOperation Operation;
-        MonkeyTest Test;
-        public int ItemsInspected;
+        public Queue<BigInteger> Items;
+        public MonkeyOperation Operation;
+        public MonkeyTest Test;
+        public BigInteger ItemsInspected;
 
-        public Monkey(IEnumerable<Int64> items, MonkeyOperation mo, MonkeyTest mt)
+        public Monkey(IEnumerable<BigInteger> items, MonkeyOperation mo, MonkeyTest mt)
         {
-            Items = new Queue<Int64>(items);
+            Items = new Queue<BigInteger>(items);
             Operation = mo;
             Test = mt;
             ItemsInspected = 0;
         }
 
-        public List<Tuple<int, Int64>> InspectAllItems()
+        public List<Tuple<int, BigInteger>> InspectAllItems()
         {
-            List<Tuple<int, Int64>> _return = new List<Tuple<int, Int64>>();
-            Int64 _currentItem;
+            List<Tuple<int, BigInteger>> _return = new List<Tuple<int, BigInteger>>();
+            BigInteger _currentItem;
             
             while(Items.Count > 0)
             {
@@ -85,10 +105,24 @@ namespace Day_11
                 _currentItem = Items.Dequeue();
                 //Perform Operation
                 _currentItem = Operation.Resolve(_currentItem);
-                //Reduce worry
-                _currentItem = _currentItem / 3;
+                if (Program.PART1)
+                {
+                    //Reduce worry
+                    _currentItem = _currentItem / 3;
+                }
+                else
+                {
+                    //https://www.reddit.com/r/adventofcode/comments/zizi43/comment/iztt8mx/?utm_source=share&utm_medium=web2x&context=3
+                    /*
+                    while (_currentItem > Program.cycleLength)
+                    {
+                        _currentItem -= Program.cycleLength;
+                    }
+                    */
+                    _currentItem = _currentItem % Program.cycleLength;
+                }
                 //Asses target and return
-                _return.Add(new Tuple<int, Int64>(Test.Resolve(_currentItem), _currentItem));
+                _return.Add(new Tuple<int, BigInteger>(Test.Resolve(_currentItem), _currentItem));
                 ItemsInspected++;
             }
             return _return;
@@ -96,11 +130,11 @@ namespace Day_11
 
         public static Monkey FromDescription(string[] description)
         {
-            List<Int64> items = new List<Int64>();
+            List<BigInteger> items = new List<BigInteger>();
             string[] itemList = description[1].Split(new string[] { ": " }, StringSplitOptions.RemoveEmptyEntries)[1].Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string i in itemList)
             {
-                items.Add(Int64.Parse(i));
+                items.Add(BigInteger.Parse(i));
             }
 
             return new Monkey(
@@ -118,9 +152,9 @@ namespace Day_11
 
     class MonkeyOperation
     {
-        int? ValueA;
-        MonkeyOperand Operand;
-        int? ValueB;
+        public int? ValueA;
+        public MonkeyOperand Operand;
+        public int? ValueB;
 
         public MonkeyOperation(int? a, MonkeyOperand o, int? b)
         {
@@ -129,10 +163,10 @@ namespace Day_11
             ValueB = b;
         }
 
-        public Int64 Resolve(Int64 value)
+        public BigInteger Resolve(BigInteger value)
         {
-            Int64 a = ValueA.HasValue ? (Int64)ValueA.Value : value;
-            Int64 b = ValueB.HasValue ? (Int64)ValueB.Value : value;
+            BigInteger a = ValueA.HasValue ? (BigInteger)ValueA.Value : value;
+            BigInteger b = ValueB.HasValue ? (BigInteger)ValueB.Value : value;
             switch (Operand)
             {
                 case (MonkeyOperand.PLUS): return a + b;
@@ -158,9 +192,9 @@ namespace Day_11
 
     class MonkeyTest
     {
-        int TestDivisor;
-        int TrueTarget;
-        int FalseTarget;
+        public int TestDivisor;
+        public int TrueTarget;
+        public int FalseTarget;
 
         public MonkeyTest(int d, int t, int f)
         {
@@ -169,7 +203,7 @@ namespace Day_11
             FalseTarget = f;
         }
 
-        public int Resolve(Int64 value)
+        public int Resolve(BigInteger value)
         {
             return (value % TestDivisor) == 0 ? TrueTarget : FalseTarget;
         }
